@@ -31,7 +31,7 @@ export default function Leaderboard({ token }: Props) {
 
   useEffect(() => {
     getLeaderboard(token)
-      .then(setEntries)
+      .then((data) => setEntries(data || []))
       .catch(e => setError(e.message))
       .finally(() => setLoading(false))
   }, [token])

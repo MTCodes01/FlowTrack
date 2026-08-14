@@ -68,4 +68,4 @@ export const getWeeklyStats = (token: string) =>
 // ─── Leaderboard ──────────────────────────────────────────────────────────────
 
 export const getLeaderboard = (token: string) =>
-  request<LeaderboardEntry[]>('/api/v1/leaderboard', {}, token)
+  request<LeaderboardEntry[] | null>('/api/v1/leaderboard', {}, token)
