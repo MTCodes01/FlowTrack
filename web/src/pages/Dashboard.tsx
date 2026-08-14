@@ -19,7 +19,7 @@ export default function Dashboard({ token }: Props) {
 
   useEffect(() => {
     Promise.all([getDailyStats(token), getWeeklyStats(token)])
-      .then(([d, w]) => { setDaily(d); setWeekly(w) })
+      .then(([d, w]) => { setDaily(d || []); setWeekly(w || []) })
       .catch(e => setError(e.message))
       .finally(() => setLoading(false))
   }, [token])

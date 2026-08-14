@@ -60,10 +60,10 @@ export const getMe = (token: string) =>
 // ─── Stats ────────────────────────────────────────────────────────────────────
 
 export const getDailyStats = (token: string) =>
-  request<AppStat[]>('/api/v1/stats/daily', {}, token)
+  request<AppStat[] | null>('/api/v1/stats/daily', {}, token)
 
 export const getWeeklyStats = (token: string) =>
-  request<AppStat[]>('/api/v1/stats/weekly', {}, token)
+  request<AppStat[] | null>('/api/v1/stats/weekly', {}, token)
 
 // ─── Leaderboard ──────────────────────────────────────────────────────────────
 
