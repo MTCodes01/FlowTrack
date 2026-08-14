@@ -59,11 +59,6 @@
       "nsis": {
         "installMode": "perMachine"
       }
-    },
-    "updater": {
-      "active": false,
-      "endpoints": [],
-      "pubkey": ""
     }
   },
   "plugins": {
