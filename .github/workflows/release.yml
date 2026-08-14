@@ -140,7 +140,11 @@ jobs:
           APPLE_ID:              ${{ secrets.APPLE_ID }}
           APPLE_TEAM_ID:         ${{ secrets.APPLE_TEAM_ID }}
           APPLE_PASSWORD:        ${{ secrets.APPLE_APP_PASSWORD }}
-        run: npm run tauri build -- --target ${{ matrix.target }}
+        run: |
+          if [ -z "$APPLE_SIGNING_IDENTITY" ]; then
+            export APPLE_SIGNING_IDENTITY="-"
+          fi
+          npm run tauri build -- --target ${{ matrix.target }}
 
       # ── Rename artifacts to include version + platform ─────────────────────
       - name: Rename artifacts (Windows)
@@ -148,7 +152,7 @@ jobs:
         shell: pwsh
         run: |
           $ver = "${{ needs.version.outputs.version }}"
-          Get-ChildItem "desktop/src-tauri/target/release/bundle" -Recurse -Include *.exe,*.msi | ForEach-Object {
+          Get-ChildItem "desktop/src-tauri/target/${{ matrix.target }}/release/bundle" -Recurse -Include *.exe,*.msi | ForEach-Object {
             $ext = $_.Extension
             $newName = "FlowTrack-$ver-win-x64$ext"
             Copy-Item $_.FullName -Destination (Join-Path $_.DirectoryName $newName)
@@ -159,7 +163,7 @@ jobs:
         run: |
           ver="${{ needs.version.outputs.version }}"
           platform="${{ matrix.name }}"
-          find desktop/src-tauri/target/release/bundle -type f \( -name "*.dmg" -o -name "*.AppImage" -o -name "*.deb" \) | while read f; do
+          find "desktop/src-tauri/target/${{ matrix.target }}/release/bundle" -type f \( -name "*.dmg" -o -name "*.AppImage" -o -name "*.deb" \) | while read f; do
             dir=$(dirname "$f")
             ext="${f##*.}"
             cp "$f" "$dir/FlowTrack-${ver}-${platform}.${ext}"
@@ -171,11 +175,11 @@ jobs:
         with:
           name: desktop-${{ matrix.name }}
           path: |
-            desktop/src-tauri/target/release/bundle/**/*.exe
-            desktop/src-tauri/target/release/bundle/**/*.msi
-            desktop/src-tauri/target/release/bundle/**/*.dmg
-            desktop/src-tauri/target/release/bundle/**/*.AppImage
-            desktop/src-tauri/target/release/bundle/**/*.deb
+            desktop/src-tauri/target/${{ matrix.target }}/release/bundle/**/*.exe
+            desktop/src-tauri/target/${{ matrix.target }}/release/bundle/**/*.msi
+            desktop/src-tauri/target/${{ matrix.target }}/release/bundle/**/*.dmg
+            desktop/src-tauri/target/${{ matrix.target }}/release/bundle/**/*.AppImage
+            desktop/src-tauri/target/${{ matrix.target }}/release/bundle/**/*.deb
           retention-days: 1
 
   # ── Build Docker images ────────────────────────────────────────────────────
