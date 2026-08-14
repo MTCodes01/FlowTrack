@@ -218,7 +218,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: ./server
-          platforms: linux/amd64,linux/arm64
+          platforms: linux/amd64
           push: true
           tags:   ${{ steps.server-meta.outputs.tags }}
           labels: ${{ steps.server-meta.outputs.labels }}
@@ -230,7 +230,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: ./web
-          platforms: linux/amd64,linux/arm64
+          platforms: linux/amd64
           push: true
           tags:   ${{ steps.web-meta.outputs.tags }}
           labels: ${{ steps.web-meta.outputs.labels }}
