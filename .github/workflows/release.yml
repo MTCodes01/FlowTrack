@@ -123,6 +123,10 @@ jobs:
           security list-keychain -d user -s $KEYCHAIN_PATH
 
       # ── Build ───────────────────────────────────────────────────────────────
+      - name: Install web dependencies
+        working-directory: web
+        run: npm ci
+
       - name: Install desktop dependencies
         working-directory: desktop
         run: npm ci
