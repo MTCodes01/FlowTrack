@@ -1,0 +1,294 @@
+name: Release
+
+on:
+  push:
+    tags: ['v*.*.*']
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Version tag (e.g. v1.0.0)'
+        required: true
+
+permissions:
+  contents: write
+  packages: write
+
+env:
+  REGISTRY: ghcr.io
+  SERVER_IMAGE: ghcr.io/flowtrack-app/flowtrack-server
+  WEB_IMAGE:    ghcr.io/flowtrack-app/flowtrack-web
+
+jobs:
+  # ── Determine version ──────────────────────────────────────────────────────
+  version:
+    name: Determine version
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.get-version.outputs.version }}
+    steps:
+      - name: Get version
+        id: get-version
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "version=${{ github.event.inputs.tag }}" >> $GITHUB_OUTPUT
+          else
+            echo "version=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+          fi
+
+  # ── Run tests before building ──────────────────────────────────────────────
+  test:
+    name: Run tests
+    needs: version
+    uses: ./.github/workflows/tests.yml
+
+  # ── Build desktop for each platform ───────────────────────────────────────
+  build-desktop:
+    name: Build desktop (${{ matrix.name }})
+    needs: [version, test]
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: windows
+            os: windows-latest
+            target: x86_64-pc-windows-msvc
+            artifact-pattern: |
+              desktop/src-tauri/target/release/bundle/nsis/*.exe
+              desktop/src-tauri/target/release/bundle/msi/*.msi
+
+          - name: macos-x64
+            os: macos-13
+            target: x86_64-apple-darwin
+            artifact-pattern: desktop/src-tauri/target/release/bundle/dmg/*.dmg
+
+          - name: macos-arm64
+            os: macos-latest
+            target: aarch64-apple-darwin
+            artifact-pattern: desktop/src-tauri/target/release/bundle/dmg/*.dmg
+
+          - name: linux-x64
+            os: ubuntu-22.04
+            target: x86_64-unknown-linux-gnu
+            artifact-pattern: |
+              desktop/src-tauri/target/release/bundle/appimage/*.AppImage
+              desktop/src-tauri/target/release/bundle/deb/*.deb
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # ── Rust toolchain ─────────────────────────────────────────────────────
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
+
+      - name: Rust cache
+        uses: swatinem/rust-cache@v2
+        with:
+          workspaces: desktop/src-tauri
+
+      # ── Node.js ────────────────────────────────────────────────────────────
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+          cache-dependency-path: desktop/package-lock.json
+
+      # ── Linux dependencies ─────────────────────────────────────────────────
+      - name: Install Linux dependencies
+        if: matrix.os == 'ubuntu-22.04'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libgtk-3-dev libwebkit2gtk-4.1-dev libayatana-appindicator3-dev \
+            librsvg2-dev patchelf libsoup-3.0-dev libjavascriptcoregtk-4.1-dev
+
+      # ── macOS signing (optional — skips if secrets absent) ─────────────────
+      - name: Import Apple certificate
+        if: runner.os == 'macOS' && env.APPLE_CERTIFICATE != ''
+        env:
+          APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
+          APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
+          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
+        run: |
+          KEYCHAIN_PATH=$RUNNER_TEMP/app-signing.keychain-db
+          echo -n "$APPLE_CERTIFICATE" | base64 --decode -o $RUNNER_TEMP/certificate.p12
+          security create-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
+          security set-keychain-settings -lut 21600 $KEYCHAIN_PATH
+          security unlock-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
+          security import $RUNNER_TEMP/certificate.p12 -P "$APPLE_CERTIFICATE_PASSWORD" \
+            -A -t cert -f pkcs12 -k $KEYCHAIN_PATH
+          security list-keychain -d user -s $KEYCHAIN_PATH
+
+      # ── Build ───────────────────────────────────────────────────────────────
+      - name: Install desktop dependencies
+        working-directory: desktop
+        run: npm ci
+
+      - name: Build Tauri app
+        working-directory: desktop
+        env:
+          TAURI_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
+          TAURI_KEY_PASSWORD: ${{ secrets.TAURI_KEY_PASSWORD }}
+          APPLE_SIGNING_IDENTITY: ${{ secrets.APPLE_SIGNING_IDENTITY }}
+          APPLE_ID:              ${{ secrets.APPLE_ID }}
+          APPLE_TEAM_ID:         ${{ secrets.APPLE_TEAM_ID }}
+          APPLE_PASSWORD:        ${{ secrets.APPLE_APP_PASSWORD }}
+        run: npm run tauri build -- --target ${{ matrix.target }}
+
+      # ── Rename artifacts to include version + platform ─────────────────────
+      - name: Rename artifacts (Windows)
+        if: matrix.name == 'windows'
+        shell: pwsh
+        run: |
+          $ver = "${{ needs.version.outputs.version }}"
+          Get-ChildItem "desktop/src-tauri/target/release/bundle" -Recurse -Include *.exe,*.msi | ForEach-Object {
+            $ext = $_.Extension
+            $newName = "FlowTrack-$ver-win-x64$ext"
+            Copy-Item $_.FullName -Destination (Join-Path $_.DirectoryName $newName)
+          }
+
+      - name: Rename artifacts (macOS/Linux)
+        if: matrix.name != 'windows'
+        run: |
+          ver="${{ needs.version.outputs.version }}"
+          platform="${{ matrix.name }}"
+          find desktop/src-tauri/target/release/bundle -type f \( -name "*.dmg" -o -name "*.AppImage" -o -name "*.deb" \) | while read f; do
+            dir=$(dirname "$f")
+            ext="${f##*.}"
+            cp "$f" "$dir/FlowTrack-${ver}-${platform}.${ext}"
+          done
+
+      # ── Upload artifacts ───────────────────────────────────────────────────
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: desktop-${{ matrix.name }}
+          path: |
+            desktop/src-tauri/target/release/bundle/**/*.exe
+            desktop/src-tauri/target/release/bundle/**/*.msi
+            desktop/src-tauri/target/release/bundle/**/*.dmg
+            desktop/src-tauri/target/release/bundle/**/*.AppImage
+            desktop/src-tauri/target/release/bundle/**/*.deb
+          retention-days: 1
+
+  # ── Build Docker images ────────────────────────────────────────────────────
+  build-docker:
+    name: Build & push Docker images
+    needs: [version, test]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: docker/setup-qemu-action@v3
+      - uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Server image metadata
+        id: server-meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.SERVER_IMAGE }}
+          tags: |
+            type=semver,pattern={{version}},value=${{ needs.version.outputs.version }}
+            type=semver,pattern={{major}}.{{minor}},value=${{ needs.version.outputs.version }}
+            type=semver,pattern={{major}},value=${{ needs.version.outputs.version }}
+            type=raw,value=latest
+
+      - name: Web image metadata
+        id: web-meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.WEB_IMAGE }}
+          tags: |
+            type=semver,pattern={{version}},value=${{ needs.version.outputs.version }}
+            type=semver,pattern={{major}}.{{minor}},value=${{ needs.version.outputs.version }}
+            type=semver,pattern={{major}},value=${{ needs.version.outputs.version }}
+            type=raw,value=latest
+
+      - name: Build and push server
+        uses: docker/build-push-action@v6
+        with:
+          context: ./server
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags:   ${{ steps.server-meta.outputs.tags }}
+          labels: ${{ steps.server-meta.outputs.labels }}
+          build-args: VERSION=${{ needs.version.outputs.version }}
+          cache-from: type=gha
+          cache-to:   type=gha,mode=max
+
+      - name: Build and push web
+        uses: docker/build-push-action@v6
+        with:
+          context: ./web
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags:   ${{ steps.web-meta.outputs.tags }}
+          labels: ${{ steps.web-meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to:   type=gha,mode=max
+
+  # ── Create GitHub Release ──────────────────────────────────────────────────
+  create-release:
+    name: Create GitHub Release
+    needs: [version, build-desktop, build-docker]
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # Download all platform artifacts
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: desktop-*
+          path: release-assets
+          merge-multiple: true
+
+      # Generate checksums
+      - name: Generate checksums
+        run: |
+          cd release-assets
+          find . -type f \( -name "*.exe" -o -name "*.msi" -o -name "*.dmg" -o -name "*.AppImage" -o -name "*.deb" \) \
+            -exec sha256sum {} \; > checksums.txt
+          echo ""
+          echo "=== Generated checksums ==="
+          cat checksums.txt
+
+      # Extract changelog for this version
+      - name: Extract release notes
+        id: changelog
+        run: |
+          version="${{ needs.version.outputs.version }}"
+          if grep -q "## \[${version}\]" CHANGELOG.md 2>/dev/null; then
+            awk "/^## \[${version}\]/{found=1; next} /^## \[/{if(found) exit} found{print}" CHANGELOG.md > release_notes.md
+          else
+            echo "Release ${version}" > release_notes.md
+          fi
+          echo "notes=$(cat release_notes.md)" >> $GITHUB_OUTPUT
+
+      # Create the release and attach all assets
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name:   ${{ needs.version.outputs.version }}
+          name:       "FlowTrack ${{ needs.version.outputs.version }}"
+          body_path:  release_notes.md
+          draft:      false
+          prerelease: ${{ contains(needs.version.outputs.version, '-') }}
+          files: |
+            release-assets/*.exe
+            release-assets/*.msi
+            release-assets/*.dmg
+            release-assets/*.AppImage
+            release-assets/*.deb
+            release-assets/checksums.txt
+          token: ${{ secrets.GITHUB_TOKEN }}

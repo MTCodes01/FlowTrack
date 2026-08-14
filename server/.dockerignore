@@ -1,0 +1,23 @@
+# Docker build context exclusions for the server image
+.git
+.github
+*.md
+*.txt
+
+# Test files
+**/*_test.go
+**/testdata/
+
+# Local development files
+.env
+.env.*
+!.env.example
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+
+# Build outputs
+bin/
+dist/

@@ -1,0 +1,48 @@
+# FlowTrack — Development Compose override
+# ─────────────────────────────────────────────────────────────────────────────
+# Extends docker-compose.yml with hot-reload mounts and dev-friendly settings.
+#
+#   docker compose -f docker-compose.yml -f docker-compose.dev.yml up
+#
+# ─────────────────────────────────────────────────────────────────────────────
+
+name: flowtrack
+
+services:
+
+  postgres:
+    ports:
+      - "5432:5432"       # Expose postgres locally for direct access
+
+  server:
+    build:
+      context: ./server
+      target: builder     # Stay in the build stage (has Go tools)
+    volumes:
+      - ./server:/build   # Mount source for live rebuilds
+    environment:
+      GIN_MODE: debug
+      DATABASE_URL: postgres://${POSTGRES_USER:-flowtrack}:${POSTGRES_PASSWORD:-flowtrack}@postgres:5432/${POSTGRES_DB:-flowtrack}?sslmode=disable
+      JWT_SECRET:  dev-jwt-secret-not-for-production
+      API_SECRET:  dev-api-secret-not-for-production
+      CORS_ORIGINS: "*"
+    command: ["go", "run", "./cmd/server"]
+
+  web:
+    build:
+      context: ./web
+      target: builder    # Node build stage
+    volumes:
+      - ./web:/app
+      - /app/node_modules
+    ports:
+      - "5173:5173"      # Expose Vite dev server directly
+    command: ["npm", "run", "dev", "--", "--host", "0.0.0.0"]
+    environment:
+      VITE_API_URL: http://localhost:8080
+
+  nginx:
+    # In dev mode the web Vite server and API are accessed directly
+    # Nginx is optional; comment out if not needed
+    ports:
+      - "8080:80"

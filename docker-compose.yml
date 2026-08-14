@@ -1,0 +1,105 @@
+# FlowTrack — Docker Compose (base)
+# ─────────────────────────────────────────────────────────────────────────────
+# This is the base compose file shared by dev and prod overrides.
+# Run standalone for a quick local stack (builds from source).
+#
+#   cp .env.example .env   # fill in your secrets
+#   docker compose up -d
+#
+# ─────────────────────────────────────────────────────────────────────────────
+
+name: flowtrack
+
+services:
+
+  # ── PostgreSQL ──────────────────────────────────────────────────────────────
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB:       ${POSTGRES_DB:-flowtrack}
+      POSTGRES_USER:     ${POSTGRES_USER:-flowtrack}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
+    volumes:
+      - flowtrack_postgres:/var/lib/postgresql/data
+      - ./docker/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-flowtrack} -d ${POSTGRES_DB:-flowtrack}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    networks:
+      - internal
+
+  # ── Backend API server ──────────────────────────────────────────────────────
+  server:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    environment:
+      DATABASE_URL:         postgres://${POSTGRES_USER:-flowtrack}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-flowtrack}?sslmode=disable
+      SERVER_PORT:          ${SERVER_PORT:-8080}
+      JWT_SECRET:           ${JWT_SECRET:?JWT_SECRET is required}
+      API_SECRET:           ${API_SECRET:?API_SECRET is required}
+      CORS_ORIGINS:         ${CORS_ORIGINS:-http://localhost}
+      WEB_URL:              ${WEB_URL:-http://localhost}
+      REGISTRATION_ENABLED: ${REGISTRATION_ENABLED:-true}
+      LEADERBOARD_ENABLED:  ${LEADERBOARD_ENABLED:-true}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+    networks:
+      - internal
+      - public
+
+  # ── Web dashboard ───────────────────────────────────────────────────────────
+  web:
+    build:
+      context: ./web
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    depends_on:
+      server:
+        condition: service_healthy
+    networks:
+      - public
+
+  # ── Nginx reverse proxy ─────────────────────────────────────────────────────
+  nginx:
+    image: nginx:1.27-alpine
+    restart: unless-stopped
+    ports:
+      - "${HTTP_PORT:-80}:80"
+    volumes:
+      - ./docker/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - web
+      - server
+    networks:
+      - public
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+# ── Volumes ───────────────────────────────────────────────────────────────────
+volumes:
+  flowtrack_postgres:
+    driver: local
+
+# ── Networks ──────────────────────────────────────────────────────────────────
+networks:
+  internal:
+    driver: bridge
+    internal: true      # postgres not reachable from outside
+  public:
+    driver: bridge

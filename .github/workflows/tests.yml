@@ -1,0 +1,104 @@
+name: Tests
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  # ── Go Server Tests ────────────────────────────────────────────────────────
+  server-tests:
+    name: Server unit tests
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB:       flowtrack_test
+          POSTGRES_USER:     flowtrack
+          POSTGRES_PASSWORD: flowtrack_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U flowtrack -d flowtrack_test"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      DATABASE_URL: postgres://flowtrack:flowtrack_test@localhost:5432/flowtrack_test?sslmode=disable
+      JWT_SECRET:   test-jwt-secret
+      API_SECRET:   test-api-secret
+
+    defaults:
+      run:
+        working-directory: server
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.22'
+          cache: true
+          cache-dependency-path: server/go.sum
+
+      - name: Download dependencies
+        run: go mod download
+
+      - name: Run tests
+        run: go test -v -race -coverprofile=coverage.out ./...
+
+      - name: Upload coverage
+        uses: codecov/codecov-action@v4
+        with:
+          files: server/coverage.out
+          flags: server
+
+  # ── Go Agent Tests ─────────────────────────────────────────────────────────
+  agent-tests:
+    name: Agent unit tests
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: agent
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.22'
+          cache: true
+          cache-dependency-path: agent/go.sum
+
+      - name: Install CGO dependencies
+        run: sudo apt-get install -y gcc libsqlite3-dev
+
+      - name: Run tests
+        run: go test -v -race ./...
+
+  # ── Web Dashboard Tests ────────────────────────────────────────────────────
+  web-tests:
+    name: Web Dashboard tests
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: web
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tests
+        run: npm test --if-present

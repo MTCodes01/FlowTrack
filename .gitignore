@@ -1,0 +1,79 @@
+# ─── Go ──────────────────────────────────────────────────────────────────────
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+vendor/
+/dist/
+
+# ─── Binaries / Build outputs ─────────────────────────────────────────────────
+agent/bin/
+server/bin/
+releases/windows/*.exe
+releases/windows/*.msi
+releases/macos/*.dmg
+releases/linux/*.AppImage
+releases/linux/*.deb
+
+# ─── Node / npm ───────────────────────────────────────────────────────────────
+node_modules/
+.pnp
+.pnp.js
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+.npm
+
+# ─── Vite / Build ─────────────────────────────────────────────────────────────
+web/dist/
+desktop/dist/
+.vite/
+
+# ─── Rust / Tauri ─────────────────────────────────────────────────────────────
+target/
+desktop/src-tauri/target/
+Cargo.lock
+
+# ─── Environment files ────────────────────────────────────────────────────────
+.env
+.env.local
+.env.*.local
+# Keep the example committed
+!.env.example
+
+# ─── Docker ───────────────────────────────────────────────────────────────────
+.docker/
+
+# ─── IDE / Editor ─────────────────────────────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# ─── Test / Coverage ──────────────────────────────────────────────────────────
+coverage/
+*.coverprofile
+htmlcov/
+
+# ─── Logs ─────────────────────────────────────────────────────────────────────
+*.log
+logs/
+
+# ─── SQLite (local agent database) ────────────────────────────────────────────
+*.db
+*.sqlite
+*.sqlite3
+
+# ─── Certificates / Keys ──────────────────────────────────────────────────────
+*.pem
+*.key
+*.crt
+*.p12
+*.pfx
