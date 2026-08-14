@@ -50,4 +50,4 @@ git push origin "$TAG"
 
 echo ""
 echo "✓ Tag $TAG pushed. GitHub Actions will build and publish the release."
-echo "  Monitor: https://github.com/flowtrack-app/flowtrack/actions"
+echo "  Monitor: https://github.com/MTCodes01/flowtrack/actions"

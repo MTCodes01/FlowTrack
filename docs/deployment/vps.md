@@ -27,7 +27,7 @@ newgrp docker
 ## 2. Clone and Configure
 
 ```bash
-git clone https://github.com/flowtrack-app/flowtrack.git
+git clone https://github.com/MTCodes01/flowtrack.git
 cd flowtrack
 
 cp .env.example .env

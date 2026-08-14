@@ -10,8 +10,8 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/flowtrack-app/flowtrack/server/internal/api"
-	"github.com/flowtrack-app/flowtrack/server/internal/config"
+	"github.com/MTCodes01/flowtrack/server/internal/api"
+	"github.com/MTCodes01/flowtrack/server/internal/config"
 	"github.com/joho/godotenv"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"

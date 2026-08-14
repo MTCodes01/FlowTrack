@@ -2,7 +2,7 @@
 
 ## Download
 
-1. Go to the [FlowTrack Releases](https://github.com/flowtrack-app/flowtrack/releases/latest) page
+1. Go to the [FlowTrack Releases](https://github.com/MTCodes01/flowtrack/releases/latest) page
 2. Download **`FlowTrack-vX.X.X-win-x64.exe`** (NSIS installer) or **`FlowTrack-vX.X.X-win-x64.msi`**
 
 ## Install

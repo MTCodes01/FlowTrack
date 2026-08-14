@@ -4,7 +4,7 @@ version = "1.0.0"
 description = "FlowTrack Desktop — Native application time tracker"
 authors = ["FlowTrack Contributors"]
 license = "MIT"
-repository = "https://github.com/flowtrack-app/flowtrack"
+repository = "https://github.com/MTCodes01/flowtrack"
 edition = "2021"
 
 [lib]

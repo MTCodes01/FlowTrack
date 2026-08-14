@@ -1,4 +1,4 @@
-module github.com/flowtrack-app/flowtrack/server
+module github.com/MTCodes01/flowtrack/server
 
 go 1.22
 

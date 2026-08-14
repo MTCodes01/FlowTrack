@@ -7,8 +7,8 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/flowtrack-app/flowtrack/agent/internal/config"
-	"github.com/flowtrack-app/flowtrack/agent/internal/storage"
+	"github.com/MTCodes01/flowtrack/agent/internal/config"
+	"github.com/MTCodes01/flowtrack/agent/internal/storage"
 )
 
 // Syncer flushes unsynced local sessions to the FlowTrack server.

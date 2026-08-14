@@ -2,7 +2,7 @@
 
 ## Download
 
-Go to the [FlowTrack Releases](https://github.com/flowtrack-app/flowtrack/releases/latest) page and download the appropriate version:
+Go to the [FlowTrack Releases](https://github.com/MTCodes01/flowtrack/releases/latest) page and download the appropriate version:
 
 | Mac | Download |
 |-----|---------|

@@ -39,7 +39,7 @@ services:
           memory: 128M
 
   server:
-    image: ghcr.io/flowtrack-app/flowtrack-server:${FLOWTRACK_VERSION:-latest}
+    image: ghcr.io/MTCodes01/flowtrack-server:${FLOWTRACK_VERSION:-latest}
     restart: always
     environment:
       DATABASE_URL:         postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}?sslmode=disable
@@ -72,7 +72,7 @@ services:
           memory: 64M
 
   web:
-    image: ghcr.io/flowtrack-app/flowtrack-web:${FLOWTRACK_VERSION:-latest}
+    image: ghcr.io/MTCodes01/flowtrack-web:${FLOWTRACK_VERSION:-latest}
     restart: always
     depends_on:
       server:

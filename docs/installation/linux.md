@@ -2,7 +2,7 @@
 
 ## Download
 
-Go to the [FlowTrack Releases](https://github.com/flowtrack-app/flowtrack/releases/latest) page and choose:
+Go to the [FlowTrack Releases](https://github.com/MTCodes01/flowtrack/releases/latest) page and choose:
 
 | Format | File | When to use |
 |--------|------|-------------|
@@ -15,7 +15,7 @@ Go to the [FlowTrack Releases](https://github.com/flowtrack-app/flowtrack/releas
 
 ```bash
 # Download
-wget https://github.com/flowtrack-app/flowtrack/releases/latest/download/FlowTrack-v1.0.0-linux-x64.AppImage
+wget https://github.com/MTCodes01/flowtrack/releases/latest/download/FlowTrack-v1.0.0-linux-x64.AppImage
 
 # Make executable
 chmod +x FlowTrack-v1.0.0-linux-x64.AppImage

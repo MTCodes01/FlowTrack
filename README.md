@@ -12,16 +12,16 @@ FlowTrack runs silently in your system tray, tracking which applications you use
 
 | Platform | Download |
 |---|---|
-| 🪟 Windows (x64) | [FlowTrack-Setup.exe](https://github.com/flowtrack-app/flowtrack/releases/latest) |
-| 🍎 macOS (Apple Silicon) | [FlowTrack-macos-arm64.dmg](https://github.com/flowtrack-app/flowtrack/releases/latest) |
-| 🍎 macOS (Intel) | [FlowTrack-macos-x64.dmg](https://github.com/flowtrack-app/flowtrack/releases/latest) |
-| 🐧 Linux (AppImage) | [FlowTrack-linux-x64.AppImage](https://github.com/flowtrack-app/flowtrack/releases/latest) |
-| 🐧 Linux (DEB) | [FlowTrack-linux-x64.deb](https://github.com/flowtrack-app/flowtrack/releases/latest) |
+| 🪟 Windows (x64) | [FlowTrack-Setup.exe](https://github.com/MTCodes01/flowtrack/releases/latest) |
+| 🍎 macOS (Apple Silicon) | [FlowTrack-macos-arm64.dmg](https://github.com/MTCodes01/flowtrack/releases/latest) |
+| 🍎 macOS (Intel) | [FlowTrack-macos-x64.dmg](https://github.com/MTCodes01/flowtrack/releases/latest) |
+| 🐧 Linux (AppImage) | [FlowTrack-linux-x64.AppImage](https://github.com/MTCodes01/flowtrack/releases/latest) |
+| 🐧 Linux (DEB) | [FlowTrack-linux-x64.deb](https://github.com/MTCodes01/flowtrack/releases/latest) |
 
 ### Self-Hosted Server (Docker)
 
 ```bash
-git clone https://github.com/flowtrack-app/flowtrack.git
+git clone https://github.com/MTCodes01/flowtrack.git
 cd flowtrack
 cp .env.example .env   # edit with your secrets
 docker compose up -d
@@ -30,8 +30,8 @@ docker compose up -d
 ### Docker Images
 
 ```bash
-docker pull ghcr.io/flowtrack-app/flowtrack-server:latest
-docker pull ghcr.io/flowtrack-app/flowtrack-web:latest
+docker pull ghcr.io/MTCodes01/flowtrack-server:latest
+docker pull ghcr.io/MTCodes01/flowtrack-web:latest
 ```
 
 ---
@@ -87,7 +87,7 @@ docker pull ghcr.io/flowtrack-app/flowtrack-web:latest
 
 ```bash
 # Clone
-git clone https://github.com/flowtrack-app/flowtrack.git
+git clone https://github.com/MTCodes01/flowtrack.git
 cd flowtrack
 
 # Configure

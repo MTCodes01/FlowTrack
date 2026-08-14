@@ -7,9 +7,9 @@ import (
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
-	"github.com/flowtrack-app/flowtrack/server/internal/auth"
-	"github.com/flowtrack-app/flowtrack/server/internal/config"
-	"github.com/flowtrack-app/flowtrack/server/internal/models"
+	"github.com/MTCodes01/flowtrack/server/internal/auth"
+	"github.com/MTCodes01/flowtrack/server/internal/config"
+	"github.com/MTCodes01/flowtrack/server/internal/models"
 	"gorm.io/gorm"
 )
 

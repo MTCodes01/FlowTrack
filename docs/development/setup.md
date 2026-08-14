@@ -17,7 +17,7 @@ This guide walks you through setting up a complete FlowTrack development environ
 ## Clone
 
 ```bash
-git clone https://github.com/flowtrack-app/flowtrack.git
+git clone https://github.com/MTCodes01/flowtrack.git
 cd flowtrack
 ```
 

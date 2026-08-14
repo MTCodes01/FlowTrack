@@ -7,10 +7,10 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/flowtrack-app/flowtrack/agent/internal/config"
-	"github.com/flowtrack-app/flowtrack/agent/internal/storage"
-	"github.com/flowtrack-app/flowtrack/agent/internal/sync"
-	"github.com/flowtrack-app/flowtrack/agent/internal/tracker"
+	"github.com/MTCodes01/flowtrack/agent/internal/config"
+	"github.com/MTCodes01/flowtrack/agent/internal/storage"
+	"github.com/MTCodes01/flowtrack/agent/internal/sync"
+	"github.com/MTCodes01/flowtrack/agent/internal/tracker"
 )
 
 func main() {

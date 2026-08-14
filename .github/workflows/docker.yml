@@ -8,8 +8,8 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  SERVER_IMAGE: ghcr.io/flowtrack-app/flowtrack-server
-  WEB_IMAGE:    ghcr.io/flowtrack-app/flowtrack-web
+  SERVER_IMAGE: ghcr.io/MTCodes01/flowtrack-server
+  WEB_IMAGE:    ghcr.io/MTCodes01/flowtrack-web
 
 jobs:
   build-and-push:

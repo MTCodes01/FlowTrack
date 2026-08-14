@@ -44,5 +44,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Development setup guide
 - CONTRIBUTING, SECURITY, CHANGELOG
 
-[Unreleased]: https://github.com/flowtrack-app/flowtrack/compare/v1.0.0...HEAD
-[1.0.0]: https://github.com/flowtrack-app/flowtrack/releases/tag/v1.0.0
+[Unreleased]: https://github.com/MTCodes01/flowtrack/compare/v1.0.0...HEAD
+[1.0.0]: https://github.com/MTCodes01/flowtrack/releases/tag/v1.0.0

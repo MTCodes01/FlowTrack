@@ -1,4 +1,4 @@
-module github.com/flowtrack-app/flowtrack/agent
+module github.com/MTCodes01/flowtrack/agent
 
 go 1.22
 

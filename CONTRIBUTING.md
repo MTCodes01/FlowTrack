@@ -54,7 +54,7 @@ chore: upgrade Go to 1.23
 
 ## Reporting Bugs
 
-Open a [GitHub Issue](https://github.com/flowtrack-app/flowtrack/issues) with:
+Open a [GitHub Issue](https://github.com/MTCodes01/flowtrack/issues) with:
 - FlowTrack version
 - Operating system
 - Steps to reproduce

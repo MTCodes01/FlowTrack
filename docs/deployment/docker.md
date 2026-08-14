@@ -4,7 +4,7 @@
 
 ```bash
 # Clone the repository
-git clone https://github.com/flowtrack-app/flowtrack.git
+git clone https://github.com/MTCodes01/flowtrack.git
 cd flowtrack
 
 # Configure environment
@@ -80,7 +80,7 @@ docker compose up
 docker compose -f docker-compose.prod.yml up -d
 ```
 
-Uses `ghcr.io/flowtrack-app/flowtrack-server:latest` and `ghcr.io/flowtrack-app/flowtrack-web:latest`.
+Uses `ghcr.io/MTCodes01/flowtrack-server:latest` and `ghcr.io/MTCodes01/flowtrack-web:latest`.
 
 To pin to a specific version:
 ```bash

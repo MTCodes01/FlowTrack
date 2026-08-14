@@ -4,8 +4,8 @@ import (
 	"log"
 	"time"
 
-	"github.com/flowtrack-app/flowtrack/agent/internal/config"
-	"github.com/flowtrack-app/flowtrack/agent/internal/storage"
+	"github.com/MTCodes01/flowtrack/agent/internal/config"
+	"github.com/MTCodes01/flowtrack/agent/internal/storage"
 )
 
 // Tracker polls the active window and writes sessions to local storage.
