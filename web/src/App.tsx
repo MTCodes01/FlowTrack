@@ -5,6 +5,7 @@ import Login from './pages/Login'
 import Leaderboard from './pages/Leaderboard'
 import Settings from './pages/Settings'
 import Layout from './components/Layout'
+import { ErrorBoundary } from './components/ErrorBoundary'
 
 function App() {
   const [token, setToken] = useState<string | null>(() => localStorage.getItem('ft_token'))
@@ -17,23 +18,17 @@ function App() {
   const logout = () => setToken(null)
 
   return (
-    <HashRouter>
-      {!token ? (
+    <ErrorBoundary>
+      <HashRouter>
         <Routes>
-          <Route path="*" element={<Login onLogin={setToken} />} />
+          <Route path="/login" element={!token ? <Login onLogin={setToken} /> : <Navigate to="/dashboard" replace />} />
+          <Route path="/dashboard" element={token ? <Layout onLogout={logout}><Dashboard token={token} /></Layout> : <Navigate to="/login" replace />} />
+          <Route path="/leaderboard" element={token ? <Layout onLogout={logout}><Leaderboard token={token} /></Layout> : <Navigate to="/login" replace />} />
+          <Route path="/settings" element={token ? <Layout onLogout={logout}><Settings token={token} onLogout={logout} /></Layout> : <Navigate to="/login" replace />} />
+          <Route path="*" element={<Navigate to={token ? "/dashboard" : "/login"} replace />} />
         </Routes>
-      ) : (
-        <Layout onLogout={logout}>
-          <Routes>
-            <Route path="/" element={<Navigate to="/dashboard" replace />} />
-            <Route path="/dashboard" element={<Dashboard token={token} />} />
-            <Route path="/leaderboard" element={<Leaderboard token={token} />} />
-            <Route path="/settings" element={<Settings token={token} onLogout={logout} />} />
-            <Route path="*" element={<Navigate to="/dashboard" replace />} />
-          </Routes>
-        </Layout>
-      )}
-    </HashRouter>
+      </HashRouter>
+    </ErrorBoundary>
   )
 }
 
