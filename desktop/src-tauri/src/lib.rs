@@ -14,7 +14,7 @@ fn start_agent(server_url: String, token: String, state: tauri::State<'_, AgentS
     let mut child_guard = state.0.lock().unwrap();
     
     // Kill any existing agent first
-    if let Some(mut existing_child) = child_guard.take() {
+    if let Some(existing_child) = child_guard.take() {
         let _ = existing_child.kill();
     }
     
@@ -34,7 +34,7 @@ fn start_agent(server_url: String, token: String, state: tauri::State<'_, AgentS
 #[tauri::command]
 fn stop_agent(state: tauri::State<'_, AgentState>) {
     let mut child_guard = state.0.lock().unwrap();
-    if let Some(mut existing_child) = child_guard.take() {
+    if let Some(existing_child) = child_guard.take() {
         let _ = existing_child.kill();
     }
 }
@@ -132,7 +132,8 @@ pub fn run() {
         RunEvent::Exit => {
             // Kill sidecar on actual exit
             let state = app_handle.state::<AgentState>();
-            if let Some(mut child) = state.0.lock().unwrap().take() {
+            let child_opt = state.0.lock().unwrap().take();
+            if let Some(child) = child_opt {
                 let _ = child.kill();
             }
         }
