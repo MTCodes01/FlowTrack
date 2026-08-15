@@ -132,6 +132,7 @@ jobs:
         run: npm ci
 
       - name: Build Tauri app
+        shell: bash
         working-directory: desktop
         env:
           TAURI_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
