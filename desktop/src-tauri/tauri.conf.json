@@ -64,7 +64,6 @@
   "plugins": {
     "autostart": {
       "windows": "TaskScheduler"
-    },
-    "single-instance": {}
+    }
   }
 }
