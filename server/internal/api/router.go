@@ -67,6 +67,7 @@ func NewRouter(cfg *config.Config, db *gorm.DB) http.Handler {
 		authed.POST("/sessions/batch", h.batchSessions)
 		authed.GET("/stats/daily", h.dailyStats)
 		authed.GET("/stats/weekly", h.weeklyStats)
+		authed.GET("/stats/heatmap", h.heatmapStats)
 		authed.GET("/leaderboard", h.leaderboard)
 	}
 

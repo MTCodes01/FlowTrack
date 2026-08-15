@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { getMe, type User } from '../api/client'
-import { Settings2, LogOut, Shield } from 'lucide-react'
+import { Settings2, LogOut, Shield, Server } from 'lucide-react'
 
 interface Props { token: string; onLogout: () => void }
 
@@ -22,23 +22,26 @@ export default function Settings({ token, onLogout }: Props) {
   return (
     <>
       <div className="page-header">
-        <h1><Settings2 size={22} style={{ verticalAlign: 'middle', marginRight: 8 }} />Settings</h1>
-        <p>Account and application configuration</p>
+        <h1>Settings</h1>
+        <p>Account and configuration</p>
       </div>
 
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 20, maxWidth: 560 }}>
+      <div className="bento-grid">
         {/* Account */}
-        <div className="card">
-          <div className="card-title">Account</div>
+        <div className="bento-card" style={{ gridColumn: 'span 2' }}>
+          <div className="icon-circle">
+            <Settings2 size={20} />
+          </div>
+          <div className="card-title portfolio-card-title">Account</div>
           {user ? (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
               <div>
-                <div style={{ fontSize: 12, color: 'var(--color-muted)', marginBottom: 2 }}>Username</div>
-                <div style={{ fontWeight: 600 }}>{user.username}</div>
+                <div className="form-label">Username</div>
+                <div style={{ fontWeight: 800, fontSize: 24, fontFamily: 'Montserrat, sans-serif' }}>{user.username}</div>
               </div>
               <div>
-                <div style={{ fontSize: 12, color: 'var(--color-muted)', marginBottom: 2 }}>Email</div>
-                <div>{user.email}</div>
+                <div className="form-label">Email</div>
+                <div style={{ fontFamily: 'JetBrains Mono, monospace' }}>{user.email}</div>
               </div>
             </div>
           ) : (
@@ -47,8 +50,11 @@ export default function Settings({ token, onLogout }: Props) {
         </div>
 
         {/* Server */}
-        <div className="card">
-          <div className="card-title">Server Connection</div>
+        <div className="bento-card" style={{ gridColumn: 'span 2' }}>
+          <div className="icon-circle">
+            <Server size={20} />
+          </div>
+          <div className="card-title portfolio-card-title">Server Connection</div>
           <div className="form-group">
             <label className="form-label">Server URL</label>
             <input
@@ -64,10 +70,11 @@ export default function Settings({ token, onLogout }: Props) {
         </div>
 
         {/* Privacy */}
-        <div className="card">
-          <div className="card-title" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <Shield size={14} />Privacy
+        <div className="bento-card" style={{ gridColumn: 'span 2' }}>
+          <div className="icon-circle">
+            <Shield size={20} />
           </div>
+          <div className="card-title portfolio-card-title">Privacy</div>
           <p style={{ fontSize: 14, color: 'var(--color-muted)', lineHeight: 1.7 }}>
             FlowTrack stores your data locally first. Data is only synced to the configured server
             when the agent is running. You control which server receives your data.
@@ -75,8 +82,11 @@ export default function Settings({ token, onLogout }: Props) {
         </div>
 
         {/* Sign out */}
-        <div className="card">
-          <div className="card-title">Session</div>
+        <div className="bento-card highlight" style={{ gridColumn: 'span 2', borderColor: 'var(--color-danger)' }}>
+          <div className="icon-circle" style={{ color: 'var(--color-danger)' }}>
+            <LogOut size={20} />
+          </div>
+          <div className="card-title portfolio-card-title">Session</div>
           <button className="btn btn-danger" onClick={onLogout}>
             <LogOut size={15} />Sign out
           </button>

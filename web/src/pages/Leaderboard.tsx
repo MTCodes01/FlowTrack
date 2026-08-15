@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react'
 import { getLeaderboard, type LeaderboardEntry } from '../api/client'
-import { Trophy } from 'lucide-react'
 
 interface Props { token: string }
 
@@ -18,10 +17,7 @@ function rankClass(i: number): string {
 }
 
 function rankEmoji(i: number): string {
-  if (i === 0) return '🥇'
-  if (i === 1) return '🥈'
-  if (i === 2) return '🥉'
-  return String(i + 1)
+  return `#${i + 1}`
 }
 
 export default function Leaderboard({ token }: Props) {
@@ -41,20 +37,20 @@ export default function Leaderboard({ token }: Props) {
   return (
     <>
       <div className="page-header">
-        <h1><Trophy size={22} style={{ verticalAlign: 'middle', marginRight: 8 }} />Leaderboard</h1>
+        <h1>Leaderboard</h1>
         <p>Top users by tracked time this week</p>
       </div>
 
       {error && <div className="alert alert-error">{error}</div>}
 
-      <div className="card" style={{ maxWidth: 640 }}>
+      <div style={{ maxWidth: 800, display: 'flex', flexDirection: 'column', gap: 12 }}>
         {entries.length === 0
           ? <div className="empty-state"><h3>No data yet</h3><p>Track some time to appear on the leaderboard</p></div>
           : entries.map((entry, i) => (
-            <div className="leaderboard-row" key={entry.username}>
-              <div className={`leaderboard-rank ${rankClass(i)}`}>{rankEmoji(i)}</div>
+            <div className={`leaderboard-row ${rankClass(i)}`} key={entry.username}>
+              <div className="leaderboard-rank">{rankEmoji(i)}</div>
               <div className="leaderboard-avatar">{entry.username[0].toUpperCase()}</div>
-              <div className="leaderboard-name">{entry.username}</div>
+              <div className="leaderboard-name">@{entry.username}</div>
               <div className="leaderboard-time">{formatTime(entry.total_seconds)}</div>
             </div>
           ))

@@ -61,11 +61,21 @@ export const getMe = (token: string) =>
 
 // ─── Stats ────────────────────────────────────────────────────────────────────
 
+export interface HeatmapStat {
+  date: string
+  app_name: string
+  total_seconds: number
+  count: number
+}
+
 export const getDailyStats = (token: string) =>
   request<AppStat[] | null>('/api/v1/stats/daily', {}, token)
 
 export const getWeeklyStats = (token: string) =>
   request<AppStat[] | null>('/api/v1/stats/weekly', {}, token)
+
+export const getHeatmapStats = (token: string) =>
+  request<HeatmapStat[] | null>('/api/v1/stats/heatmap', {}, token)
 
 // ─── Leaderboard ──────────────────────────────────────────────────────────────
 

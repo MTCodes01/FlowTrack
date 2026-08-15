@@ -160,6 +160,8 @@ func (h *handlers) listSessions(c *gin.Context) {
 
 // ─── Stats ────────────────────────────────────────────────────────────────────
 
+var istLocation = time.FixedZone("IST", 5*3600+30*60)
+
 type appStat struct {
 	AppName      string `json:"app_name"`
 	TotalSeconds int64  `json:"total_seconds"`
@@ -167,12 +169,13 @@ type appStat struct {
 
 func (h *handlers) dailyStats(c *gin.Context) {
 	userID := c.GetUint("userID")
-	today := time.Now().Truncate(24 * time.Hour)
+	nowIST := time.Now().In(istLocation)
+	todayIST := time.Date(nowIST.Year(), nowIST.Month(), nowIST.Day(), 0, 0, 0, 0, istLocation)
 
 	var stats []appStat
 	h.db.Model(&models.Session{}).
 		Select("app_name, SUM(duration_secs) as total_seconds").
-		Where("user_id = ? AND start_time >= ?", userID, today).
+		Where("user_id = ? AND start_time >= ?", userID, todayIST.UTC()).
 		Group("app_name").
 		Order("total_seconds DESC").
 		Scan(&stats)
@@ -182,14 +185,37 @@ func (h *handlers) dailyStats(c *gin.Context) {
 
 func (h *handlers) weeklyStats(c *gin.Context) {
 	userID := c.GetUint("userID")
-	weekAgo := time.Now().AddDate(0, 0, -7)
+	nowIST := time.Now().In(istLocation)
+	weekAgoIST := time.Date(nowIST.Year(), nowIST.Month(), nowIST.Day()-6, 0, 0, 0, 0, istLocation)
 
 	var stats []appStat
 	h.db.Model(&models.Session{}).
 		Select("app_name, SUM(duration_secs) as total_seconds").
-		Where("user_id = ? AND start_time >= ?", userID, weekAgo).
+		Where("user_id = ? AND start_time >= ?", userID, weekAgoIST.UTC()).
 		Group("app_name").
 		Order("total_seconds DESC").
+		Scan(&stats)
+
+	c.JSON(http.StatusOK, stats)
+}
+
+type heatmapStat struct {
+	Date         string `json:"date"`
+	AppName      string `json:"app_name"`
+	TotalSeconds int64  `json:"total_seconds"`
+	Count        int64  `json:"count"`
+}
+
+func (h *handlers) heatmapStats(c *gin.Context) {
+	userID := c.GetUint("userID")
+	threeYearsAgo := time.Now().AddDate(-3, 0, 0)
+
+	var stats []heatmapStat
+	h.db.Model(&models.Session{}).
+		Select("TO_CHAR(start_time AT TIME ZONE 'Asia/Kolkata', 'YYYY-MM-DD') as date, app_name, SUM(duration_secs) as total_seconds, COUNT(*) as count").
+		Where("user_id = ? AND start_time >= ?", userID, threeYearsAgo).
+		Group("TO_CHAR(start_time AT TIME ZONE 'Asia/Kolkata', 'YYYY-MM-DD'), app_name").
+		Order("date ASC").
 		Scan(&stats)
 
 	c.JSON(http.StatusOK, stats)
@@ -208,13 +234,14 @@ func (h *handlers) leaderboard(c *gin.Context) {
 		return
 	}
 
-	weekAgo := time.Now().AddDate(0, 0, -7)
+	nowIST := time.Now().In(istLocation)
+	weekAgoIST := time.Date(nowIST.Year(), nowIST.Month(), nowIST.Day()-6, 0, 0, 0, 0, istLocation)
 
 	var entries []leaderboardEntry
 	h.db.Model(&models.Session{}).
 		Select("users.username, SUM(sessions.duration_secs) as total_seconds").
 		Joins("JOIN users ON users.id = sessions.user_id").
-		Where("sessions.start_time >= ?", weekAgo).
+		Where("sessions.start_time >= ?", weekAgoIST.UTC()).
 		Group("users.username").
 		Order("total_seconds DESC").
 		Limit(50).
