@@ -91,6 +91,25 @@ jobs:
           cache: npm
           cache-dependency-path: desktop/package-lock.json
 
+      # ── Go toolchain ───────────────────────────────────────────────────────
+      - name: Install Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.22'
+
+      - name: Build Go Agent
+        shell: bash
+        working-directory: agent
+        run: |
+          mkdir -p ../desktop/src-tauri/binaries
+          if [ "${{ matrix.os }}" = "windows-latest" ]; then
+            GOOS=windows GOARCH=amd64 go build -ldflags "-s -w -H=windowsgui" -o ../desktop/src-tauri/binaries/flowtrack-agent-x86_64-pc-windows-msvc.exe ./cmd/agent
+          elif [ "${{ matrix.os }}" = "macos-latest" ]; then
+            GOOS=darwin GOARCH=arm64 go build -ldflags "-s -w" -o ../desktop/src-tauri/binaries/flowtrack-agent-aarch64-apple-darwin ./cmd/agent
+          else
+            GOOS=linux GOARCH=amd64 go build -ldflags "-s -w" -o ../desktop/src-tauri/binaries/flowtrack-agent-x86_64-unknown-linux-gnu ./cmd/agent
+          fi
+
       # ── Linux dependencies ─────────────────────────────────────────────────
       - name: Install Linux dependencies
         if: matrix.os == 'ubuntu-22.04'

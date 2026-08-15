@@ -36,6 +36,7 @@
   "bundle": {
     "active":      true,
     "targets":     "all",
+    "externalBin": ["binaries/flowtrack-agent"],
     "icon":        ["icons/icon.png", "icons/icon.ico"],
     "category":    "Utility",
     "copyright":   "© 2026 FlowTrack Contributors",

@@ -12,12 +12,22 @@ function App() {
   const [token, setToken] = useState<string | null>(() => localStorage.getItem('ft_token'))
   const [agentRunning, setAgentRunning] = useState(false)
 
-  // Check if the background agent is running
+  // Manage background agent lifecycle based on auth state
   useEffect(() => {
-    invoke<boolean>('is_agent_running')
-      .then(setAgentRunning)
-      .catch(() => setAgentRunning(false))
-  }, [])
+    if (token) {
+      const serverUrl = localStorage.getItem('ft_server') || import.meta.env.VITE_API_URL || 'http://localhost:27943'
+      invoke('start_agent', { serverUrl, token })
+        .then(() => setAgentRunning(true))
+        .catch(err => {
+          console.error('Failed to start agent:', err)
+          setAgentRunning(false)
+        })
+    } else {
+      invoke('stop_agent')
+        .then(() => setAgentRunning(false))
+        .catch(console.error)
+    }
+  }, [token])
 
   const logout = () => {
     localStorage.removeItem('ft_token')
