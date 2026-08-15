@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { HashRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { useState, useEffect } from 'react'
 import { invoke } from '@tauri-apps/api/core'
 import Dashboard from '../../web/src/pages/Dashboard'
@@ -23,33 +23,29 @@ function App() {
     setToken(null)
   }
 
-  if (!token) {
-    return (
-      <BrowserRouter>
+  return (
+    <HashRouter>
+      {!token ? (
         <Routes>
           <Route path="*" element={<Login onLogin={setToken} />} />
         </Routes>
-      </BrowserRouter>
-    )
-  }
-
-  return (
-    <BrowserRouter>
-      <Layout onLogout={logout}>
-        {!agentRunning && (
-          <div className="alert alert-error" style={{ marginBottom: 16 }}>
-            ⚠️ FlowTrack agent is not running. Application tracking is paused.
-          </div>
-        )}
-        <Routes>
-          <Route path="/" element={<Navigate to="/dashboard" replace />} />
-          <Route path="/dashboard"   element={<Dashboard   token={token} />} />
-          <Route path="/leaderboard" element={<Leaderboard token={token} />} />
-          <Route path="/settings"    element={<Settings    token={token} onLogout={logout} />} />
-          <Route path="*"            element={<Navigate to="/dashboard" replace />} />
-        </Routes>
-      </Layout>
-    </BrowserRouter>
+      ) : (
+        <Layout onLogout={logout}>
+          {!agentRunning && (
+            <div className="alert alert-error" style={{ marginBottom: 16 }}>
+              ⚠️ FlowTrack agent is not running. Application tracking is paused.
+            </div>
+          )}
+          <Routes>
+            <Route path="/" element={<Navigate to="/dashboard" replace />} />
+            <Route path="/dashboard"   element={<Dashboard   token={token} />} />
+            <Route path="/leaderboard" element={<Leaderboard token={token} />} />
+            <Route path="/settings"    element={<Settings    token={token} onLogout={logout} />} />
+            <Route path="*"            element={<Navigate to="/dashboard" replace />} />
+          </Routes>
+        </Layout>
+      )}
+    </HashRouter>
   )
 }
 

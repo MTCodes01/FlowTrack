@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { HashRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { useState, useEffect } from 'react'
 import Dashboard from './pages/Dashboard'
 import Login from './pages/Login'
@@ -16,28 +16,24 @@ function App() {
 
   const logout = () => setToken(null)
 
-  if (!token) {
-    return (
-      <BrowserRouter>
+  return (
+    <HashRouter>
+      {!token ? (
         <Routes>
           <Route path="*" element={<Login onLogin={setToken} />} />
         </Routes>
-      </BrowserRouter>
-    )
-  }
-
-  return (
-    <BrowserRouter>
-      <Layout onLogout={logout}>
-        <Routes>
-          <Route path="/" element={<Navigate to="/dashboard" replace />} />
-          <Route path="/dashboard" element={<Dashboard token={token} />} />
-          <Route path="/leaderboard" element={<Leaderboard token={token} />} />
-          <Route path="/settings" element={<Settings token={token} onLogout={logout} />} />
-          <Route path="*" element={<Navigate to="/dashboard" replace />} />
-        </Routes>
-      </Layout>
-    </BrowserRouter>
+      ) : (
+        <Layout onLogout={logout}>
+          <Routes>
+            <Route path="/" element={<Navigate to="/dashboard" replace />} />
+            <Route path="/dashboard" element={<Dashboard token={token} />} />
+            <Route path="/leaderboard" element={<Leaderboard token={token} />} />
+            <Route path="/settings" element={<Settings token={token} onLogout={logout} />} />
+            <Route path="*" element={<Navigate to="/dashboard" replace />} />
+          </Routes>
+        </Layout>
+      )}
+    </HashRouter>
   )
 }
 

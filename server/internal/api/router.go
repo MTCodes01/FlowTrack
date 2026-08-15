@@ -27,8 +27,18 @@ func NewRouter(cfg *config.Config, db *gorm.DB) http.Handler {
 
 	// CORS
 	origins := strings.Split(cfg.CORSOrigins, ",")
+	validOrigins := make(map[string]bool)
+	for _, o := range origins {
+		validOrigins[strings.TrimSpace(o)] = true
+	}
+
 	r.Use(cors.New(cors.Config{
-		AllowOrigins:     origins,
+		AllowOriginFunc: func(origin string) bool {
+			if validOrigins["*"] {
+				return true
+			}
+			return validOrigins[origin]
+		},
 		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"},
 		ExposeHeaders:    []string{"Content-Length"},
