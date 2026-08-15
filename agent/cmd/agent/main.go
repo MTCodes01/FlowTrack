@@ -47,6 +47,7 @@ func main() {
 			}
 		case <-syncTicker.C:
 			if cfg.ServerURL != "" {
+				t.Commit()
 				if err := s.Flush(); err != nil {
 					log.Printf("flowtrack-agent: sync error: %v", err)
 				}
@@ -56,6 +57,7 @@ func main() {
 			pollTicker.Stop()
 			syncTicker.Stop()
 			// Final flush before exit
+			t.Commit()
 			if cfg.ServerURL != "" {
 				_ = s.Flush()
 			}

@@ -18,10 +18,19 @@ export default function Dashboard({ token }: Props) {
   const [error, setError] = useState('')
 
   useEffect(() => {
-    Promise.all([getDailyStats(token), getWeeklyStats(token)])
-      .then(([d, w]) => { setDaily(d || []); setWeekly(w || []) })
-      .catch(e => setError(e.message))
-      .finally(() => setLoading(false))
+    const fetchData = () => {
+      Promise.all([getDailyStats(token), getWeeklyStats(token)])
+        .then(([d, w]) => { setDaily(d || []); setWeekly(w || []) })
+        .catch(e => setError(e.message))
+        .finally(() => setLoading(false))
+    }
+    
+    // Initial fetch
+    fetchData()
+    
+    // Auto-refresh every 30 seconds
+    const interval = setInterval(fetchData, 30000)
+    return () => clearInterval(interval)
   }, [token])
 
   const totalToday = daily.reduce((sum, s) => sum + s.total_seconds, 0)

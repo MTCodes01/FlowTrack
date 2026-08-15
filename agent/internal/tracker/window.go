@@ -1,3 +1,5 @@
+//go:build !windows
+
 package tracker
 
 // getActiveWindow returns the application name and window title of the current active window.
