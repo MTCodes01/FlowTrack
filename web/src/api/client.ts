@@ -1,17 +1,19 @@
-const BASE_URL = import.meta.env.VITE_API_URL || ''
+const DEFAULT_URL = import.meta.env.VITE_API_URL || 'http://localhost:27943'
 
 async function request<T>(
   path: string,
   options: RequestInit = {},
   token?: string,
 ): Promise<T> {
+  const baseUrl = localStorage.getItem('ft_server') || DEFAULT_URL
+
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
     ...(options.headers as Record<string, string>),
   }
   if (token) headers['Authorization'] = `Bearer ${token}`
 
-  const res = await fetch(`${BASE_URL}${path}`, { ...options, headers })
+  const res = await fetch(`${baseUrl}${path}`, { ...options, headers })
   if (!res.ok) {
     const data = await res.json().catch(() => ({}))
     throw new Error((data as { error?: string }).error ?? `HTTP ${res.status}`)

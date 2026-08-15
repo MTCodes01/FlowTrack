@@ -22,11 +22,11 @@ func main() {
 	flag.Parse()
 
 	if *healthCheck {
-		port := os.Getenv("PORT")
+		port := os.Getenv("SERVER_PORT")
 		if port == "" {
-			port = "8080"
+			port = "27943"
 		}
-		resp, err := http.Get("http://localhost:" + port + "/api/health")
+		resp, err := http.Get("http://127.0.0.1:" + port + "/api/health")
 		if err != nil || resp.StatusCode != http.StatusOK {
 			os.Exit(1)
 		}

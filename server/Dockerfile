@@ -32,7 +32,7 @@ COPY --from=builder /app/server /server
 # Non-root user (numeric UIDs work in scratch images)
 USER 65534:65534
 
-EXPOSE 8080
+EXPOSE 27943
 
 HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
     CMD ["/server", "-health"] 

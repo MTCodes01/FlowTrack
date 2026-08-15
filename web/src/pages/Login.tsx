@@ -11,6 +11,7 @@ export default function Login({ onLogin }: Props) {
   const [username, setUsername] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [serverUrl, setServerUrl] = useState(() => localStorage.getItem('ft_server') || '')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
@@ -18,6 +19,13 @@ export default function Login({ onLogin }: Props) {
     e.preventDefault()
     setError('')
     setLoading(true)
+    
+    if (serverUrl) {
+      localStorage.setItem('ft_server', serverUrl)
+    } else {
+      localStorage.removeItem('ft_server')
+    }
+
     try {
       let data: AuthResponse
       if (mode === 'login') {
@@ -87,7 +95,24 @@ export default function Login({ onLogin }: Props) {
             />
           </div>
 
-          <button className="btn btn-primary" type="submit" disabled={loading} style={{ width: '100%', justifyContent: 'center', marginTop: 8 }}>
+          <div className="form-group" style={{ marginTop: 24, padding: '16px', backgroundColor: 'var(--color-bg-light)', borderRadius: 8 }}>
+            <label className="form-label" style={{ fontSize: 13, marginBottom: 8, display: 'flex', justifyContent: 'space-between' }}>
+              <span>Server URL (Optional)</span>
+            </label>
+            <input
+              className="form-input"
+              type="url"
+              value={serverUrl}
+              onChange={e => setServerUrl(e.target.value)}
+              placeholder="http://localhost:27943"
+              style={{ fontSize: 13 }}
+            />
+            <div style={{ fontSize: 11, color: 'var(--color-muted)', marginTop: 8 }}>
+              Leave empty to use the default server.
+            </div>
+          </div>
+
+          <button className="btn btn-primary" type="submit" disabled={loading} style={{ width: '100%', justifyContent: 'center', marginTop: 16 }}>
             {loading ? 'Please wait…' : mode === 'login' ? 'Sign In' : 'Create Account'}
           </button>
         </form>

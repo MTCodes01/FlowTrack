@@ -39,7 +39,7 @@ services:
       - "5173:5173"      # Expose Vite dev server directly
     command: ["npm", "run", "dev", "--", "--host", "0.0.0.0"]
     environment:
-      VITE_API_URL: http://localhost:8080
+      VITE_API_URL: http://localhost:27943
 
   nginx:
     # In dev mode the web Vite server and API are accessed directly

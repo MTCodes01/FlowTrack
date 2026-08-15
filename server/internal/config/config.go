@@ -18,7 +18,7 @@ type Config struct {
 func Load() *Config {
 	return &Config{
 		DatabaseURL:         getEnv("DATABASE_URL", "postgres://flowtrack:flowtrack@localhost:5432/flowtrack?sslmode=disable"),
-		Port:                getEnv("SERVER_PORT", "8080"),
+		Port:                getEnv("SERVER_PORT", "27943"),
 		JWTSecret:           getEnv("JWT_SECRET", "change-me-in-production"),
 		APISecret:           getEnv("API_SECRET", "change-me-in-production"),
 		CORSOrigins:         getEnv("CORS_ORIGINS", "*"),
