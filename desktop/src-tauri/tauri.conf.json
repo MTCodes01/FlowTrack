@@ -60,10 +60,5 @@
         "installMode": "perMachine"
       }
     }
-  },
-  "plugins": {
-    "autostart": {
-      "windows": "TaskScheduler"
-    }
   }
 }
