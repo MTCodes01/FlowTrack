@@ -12,6 +12,15 @@ import (
 	"gorm.io/gorm"
 )
 
+// parseDateIST parses a YYYY-MM-DD string as start-of-day in IST.
+func parseDateIST(s string) (time.Time, error) {
+	t, err := time.Parse("2006-01-02", s)
+	if err != nil {
+		return time.Time{}, err
+	}
+	return time.Date(t.Year(), t.Month(), t.Day(), 0, 0, 0, 0, istLocation), nil
+}
+
 type handlers struct {
 	cfg *config.Config
 	db  *gorm.DB
@@ -101,7 +110,26 @@ func (h *handlers) me(c *gin.Context) {
 		c.JSON(http.StatusNotFound, gin.H{"error": "user not found"})
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"id": user.ID, "username": user.Username, "email": user.Email})
+	c.JSON(http.StatusOK, gin.H{"id": user.ID, "username": user.Username, "email": user.Email, "preferences": user.Preferences})
+}
+
+type updatePrefsReq struct {
+	Preferences string `json:"preferences"`
+}
+
+func (h *handlers) updatePreferences(c *gin.Context) {
+	userID := c.GetUint("userID")
+	var req updatePrefsReq
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	if err := h.db.Model(&models.User{}).Where("id = ?", userID).Update("preferences", req.Preferences).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to save preferences"})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"status": "ok"})
 }
 
 // ─── Sessions ─────────────────────────────────────────────────────────────────
@@ -219,6 +247,187 @@ func (h *handlers) heatmapStats(c *gin.Context) {
 		Scan(&stats)
 
 	c.JSON(http.StatusOK, stats)
+}
+
+// ─── Range Summary Stats ──────────────────────────────────────────────────────
+
+type rangeSummaryResponse struct {
+	TotalSeconds     int64  `json:"total_seconds"`
+	TotalSessions    int64  `json:"total_sessions"`
+	AvgSession       int64  `json:"avg_session"`
+	LongestSession   int64  `json:"longest_session"`
+	LongestApp       string `json:"longest_app"`
+	TopApp           string `json:"top_app"`
+	TopAppSeconds    int64  `json:"top_app_seconds"`
+	PrevTotalSeconds int64  `json:"prev_total_seconds"`
+	PrevSessions     int64  `json:"prev_sessions"`
+	PrevAvgSession   int64  `json:"prev_avg_session"`
+}
+
+type periodStats struct {
+	TotalSeconds   int64
+	TotalSessions  int64
+	AvgSession     int64
+	LongestSession int64
+	LongestApp     string
+}
+
+func (h *handlers) computePeriodStats(userID uint, start, end time.Time) periodStats {
+	type sessionData struct {
+		AppName   string
+		StartTime time.Time
+		EndTime   time.Time
+		Duration  int64
+	}
+	var rows []sessionData
+	h.db.Model(&models.Session{}).
+		Select("app_name, start_time, end_time, duration_secs as duration").
+		Where("user_id = ? AND start_time >= ? AND start_time <= ?", userID, start, end).
+		Order("start_time ASC").
+		Scan(&rows)
+
+	var stats periodStats
+	type activeSession struct {
+		app      string
+		end      time.Time
+		duration int64
+	}
+	var currSess *activeSession
+
+	for _, r := range rows {
+		stats.TotalSeconds += r.Duration
+		if currSess == nil {
+			currSess = &activeSession{app: r.AppName, end: r.EndTime, duration: r.Duration}
+		} else {
+			// Merge sessions if same app and gap is <= 5 minutes (300 seconds)
+			if r.AppName == currSess.app && r.StartTime.Sub(currSess.end).Seconds() <= 300 {
+				currSess.end = r.EndTime
+				currSess.duration += r.Duration
+			} else {
+				stats.TotalSessions++
+				if currSess.duration > stats.LongestSession {
+					stats.LongestSession = currSess.duration
+					stats.LongestApp = currSess.app
+				}
+				currSess = &activeSession{app: r.AppName, end: r.EndTime, duration: r.Duration}
+			}
+		}
+	}
+	if currSess != nil {
+		stats.TotalSessions++
+		if currSess.duration > stats.LongestSession {
+			stats.LongestSession = currSess.duration
+			stats.LongestApp = currSess.app
+		}
+	}
+
+	if stats.TotalSessions > 0 {
+		stats.AvgSession = stats.TotalSeconds / stats.TotalSessions
+	}
+
+	return stats
+}
+
+func (h *handlers) rangeSummaryStats(c *gin.Context) {
+	userID := c.GetUint("userID")
+	startStr := c.DefaultQuery("start", "")
+	endStr := c.DefaultQuery("end", "")
+
+	start, err1 := parseDateIST(startStr)
+	end, err2 := parseDateIST(endStr)
+	if err1 != nil || err2 != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid date format, use YYYY-MM-DD"})
+		return
+	}
+	endInclusive := end.Add(24*time.Hour - time.Second)
+
+	// Current period aggregate (memory grouped contiguous sessions)
+	curr := h.computePeriodStats(userID, start.UTC(), endInclusive.UTC())
+
+	// Top app in period
+	type appRow struct {
+		AppName      string
+		TotalSeconds int64
+	}
+	var topApps []appRow
+	h.db.Model(&models.Session{}).
+		Select("app_name, SUM(duration_secs) as total_seconds").
+		Where("user_id = ? AND start_time >= ? AND start_time <= ?", userID, start.UTC(), endInclusive.UTC()).
+		Group("app_name").Order("total_seconds DESC").Limit(1).
+		Scan(&topApps)
+
+	// Previous period (same duration, immediately before)
+	duration := endInclusive.Sub(start)
+	prevEnd := start.Add(-time.Second)
+	prevStart := prevEnd.Add(-duration)
+
+	prev := h.computePeriodStats(userID, prevStart.UTC(), prevEnd.UTC())
+
+	resp := rangeSummaryResponse{
+		TotalSeconds:     curr.TotalSeconds,
+		TotalSessions:    curr.TotalSessions,
+		AvgSession:       curr.AvgSession,
+		LongestSession:   curr.LongestSession,
+		LongestApp:       curr.LongestApp,
+		PrevTotalSeconds: prev.TotalSeconds,
+		PrevSessions:     prev.TotalSessions,
+		PrevAvgSession:   prev.AvgSession,
+	}
+	if len(topApps) > 0 {
+		resp.TopApp = topApps[0].AppName
+		resp.TopAppSeconds = topApps[0].TotalSeconds
+	}
+	c.JSON(http.StatusOK, resp)
+}
+
+// ─── Trend Stats ──────────────────────────────────────────────────────────────
+
+type trendPoint struct {
+	Label        string `json:"label"`
+	TotalSeconds int64  `json:"total_seconds"`
+	Count        int64  `json:"count"`
+}
+
+func (h *handlers) trendStats(c *gin.Context) {
+	userID := c.GetUint("userID")
+	startStr := c.DefaultQuery("start", "")
+	endStr := c.DefaultQuery("end", "")
+	granularity := c.DefaultQuery("granularity", "daily")
+
+	start, err1 := parseDateIST(startStr)
+	end, err2 := parseDateIST(endStr)
+	if err1 != nil || err2 != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid date format, use YYYY-MM-DD"})
+		return
+	}
+	endInclusive := end.Add(24*time.Hour - time.Second)
+
+	var points []trendPoint
+	switch granularity {
+	case "hourly":
+		h.db.Model(&models.Session{}).
+			Select("TO_CHAR(start_time AT TIME ZONE 'Asia/Kolkata', 'HH24') as label, SUM(duration_secs) as total_seconds, COUNT(*) as count").
+			Where("user_id = ? AND start_time >= ? AND start_time <= ?", userID, start.UTC(), endInclusive.UTC()).
+			Group("label").Order("label").
+			Scan(&points)
+	case "monthly":
+		h.db.Model(&models.Session{}).
+			Select("TO_CHAR(start_time AT TIME ZONE 'Asia/Kolkata', 'YYYY-MM') as label, SUM(duration_secs) as total_seconds, COUNT(*) as count").
+			Where("user_id = ? AND start_time >= ? AND start_time <= ?", userID, start.UTC(), endInclusive.UTC()).
+			Group("label").Order("label").
+			Scan(&points)
+	default: // daily
+		h.db.Model(&models.Session{}).
+			Select("TO_CHAR(start_time AT TIME ZONE 'Asia/Kolkata', 'YYYY-MM-DD') as label, SUM(duration_secs) as total_seconds, COUNT(*) as count").
+			Where("user_id = ? AND start_time >= ? AND start_time <= ?", userID, start.UTC(), endInclusive.UTC()).
+			Group("label").Order("label").
+			Scan(&points)
+	}
+
+	if points == nil {
+		points = []trendPoint{}
+	}
+	c.JSON(http.StatusOK, points)
 }
 
 // ─── Leaderboard ──────────────────────────────────────────────────────────────

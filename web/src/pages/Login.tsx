@@ -44,7 +44,7 @@ export default function Login({ onLogin }: Props) {
     <div className="auth-page">
       <div className="auth-card">
         <div className="auth-logo" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10 }}>
-          <img src="/app-icon.png" alt="FlowTrack Logo" width="32" height="32" style={{ borderRadius: 6 }} />
+          <img src="./app-icon.png" alt="FlowTrack Logo" width="32" height="32" style={{ borderRadius: 6 }} />
           Flow<span>Track</span>
         </div>
         <p className="auth-subtitle">

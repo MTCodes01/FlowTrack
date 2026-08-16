@@ -13,6 +13,7 @@ type User struct {
 	Email        string `gorm:"uniqueIndex;not null;size:256"`
 	PasswordHash string `gorm:"not null"`
 	IsAdmin      bool   `gorm:"default:false"`
+	Preferences  string `gorm:"type:text"`
 
 	Sessions []Session `gorm:"foreignKey:UserID"`
 }

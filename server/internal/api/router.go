@@ -63,11 +63,14 @@ func NewRouter(cfg *config.Config, db *gorm.DB) http.Handler {
 	authed.Use(authMiddleware(cfg.JWTSecret))
 	{
 		authed.GET("/me", h.me)
+		authed.PUT("/me/preferences", h.updatePreferences)
 		authed.GET("/sessions", h.listSessions)
 		authed.POST("/sessions/batch", h.batchSessions)
 		authed.GET("/stats/daily", h.dailyStats)
 		authed.GET("/stats/weekly", h.weeklyStats)
 		authed.GET("/stats/heatmap", h.heatmapStats)
+		authed.GET("/stats/summary", h.rangeSummaryStats)
+		authed.GET("/stats/trend", h.trendStats)
 		authed.GET("/leaderboard", h.leaderboard)
 	}
 
