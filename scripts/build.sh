@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # ─────────────────────────────────────────────────────────────────────────────
-# FlowTrack — Build Script
+# FlowTrack - Build Script
 # ─────────────────────────────────────────────────────────────────────────────
 # Usage:
 #   ./scripts/build.sh [server|agent|web|desktop|all]
@@ -10,7 +10,7 @@ set -euo pipefail
 COMPONENT="${1:-all}"
 VERSION=$(git describe --tags --always --dirty 2>/dev/null || echo "dev")
 
-echo "FlowTrack build — version: $VERSION"
+echo "FlowTrack build - version: $VERSION"
 
 build_server() {
   echo "→ Building server…"

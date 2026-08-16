@@ -104,7 +104,7 @@ go mod download
 # Linux/macOS
 go run ./cmd/agent
 
-# Windows — requires CGO for sqlite3
+# Windows - requires CGO for sqlite3
 go run ./cmd/agent
 ```
 

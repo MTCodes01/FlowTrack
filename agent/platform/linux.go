@@ -27,7 +27,7 @@ func getActiveWindow() (appName, title string, err error) {
 	// Try Sway (Wayland)
 	swayOut, err := exec.Command("swaymsg", "-t", "get_tree").Output()
 	if err == nil {
-		// Very basic parsing — production code would use json.Unmarshal
+		// Very basic parsing - production code would use json.Unmarshal
 		lines := strings.Split(string(swayOut), "\n")
 		for _, line := range lines {
 			if strings.Contains(line, `"focused": true`) {

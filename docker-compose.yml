@@ -1,4 +1,4 @@
-# FlowTrack — Docker Compose (base)
+# FlowTrack - Docker Compose (base)
 # ─────────────────────────────────────────────────────────────────────────────
 # This is the base compose file shared by dev and prod overrides.
 # Run standalone for a quick local stack (builds from source).

@@ -1,6 +1,5 @@
 import { useState } from 'react'
 import { login, register, type AuthResponse } from '../api/client'
-import { Zap } from 'lucide-react'
 
 interface Props {
   onLogin: (token: string) => void
@@ -44,8 +43,8 @@ export default function Login({ onLogin }: Props) {
   return (
     <div className="auth-page">
       <div className="auth-card">
-        <div className="auth-logo">
-          <Zap size={28} color="#6c63ff" fill="#6c63ff" style={{ display: 'inline', verticalAlign: 'middle', marginRight: 8 }} />
+        <div className="auth-logo" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10 }}>
+          <img src="/app-icon.png" alt="FlowTrack Logo" width="32" height="32" style={{ borderRadius: 6 }} />
           Flow<span>Track</span>
         </div>
         <p className="auth-subtitle">

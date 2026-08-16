@@ -53,7 +53,7 @@ func main() {
 				}
 			}
 		case sig := <-quit:
-			log.Printf("flowtrack-agent: received signal %s — shutting down", sig)
+			log.Printf("flowtrack-agent: received signal %s - shutting down", sig)
 			pollTicker.Stop()
 			syncTicker.Stop()
 			// Final flush before exit

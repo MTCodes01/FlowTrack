@@ -52,7 +52,7 @@ fn app_version() -> String {
 pub fn run() {
     let app = tauri::Builder::default()
         .manage(AgentState(Mutex::new(None)))
-        // Single-instance guard — brings existing window to front on second launch
+        // Single-instance guard - brings existing window to front on second launch
         .plugin(tauri_plugin_single_instance::init(|app, _args, _cwd| {
             if let Some(window) = app.get_webview_window("main") {
                 let _ = window.show();
@@ -80,7 +80,7 @@ pub fn run() {
 
             TrayIconBuilder::new()
                 .menu(&menu)
-                .tooltip("FlowTrack — tracking")
+                .tooltip("FlowTrack - tracking")
                 .on_menu_event(|app, event| match event.id.as_ref() {
                     "quit" => app.exit(0),
                     "show" => {

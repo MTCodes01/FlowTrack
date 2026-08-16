@@ -1,4 +1,4 @@
-# FlowTrack — Production Compose override
+# FlowTrack - Production Compose override
 # ─────────────────────────────────────────────────────────────────────────────
 # Uses pre-built images from GHCR instead of building from source.
 # Adds restart policies, resource limits, and production-safe defaults.

@@ -25,7 +25,7 @@ type Session struct {
 	Title     string    `gorm:"size:512"`
 	StartTime time.Time `gorm:"not null;index"`
 	EndTime   time.Time `gorm:"not null"`
-	// Duration in seconds — derived field, stored for query performance
+	// Duration in seconds - derived field, stored for query performance
 	DurationSecs int64 `gorm:"not null;default:0"`
 }
 

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # ─────────────────────────────────────────────────────────────────────────────
-# FlowTrack — Release Tagging Script
+# FlowTrack - Release Tagging Script
 # ─────────────────────────────────────────────────────────────────────────────
 # Usage:
 #   ./scripts/release.sh 1.2.3

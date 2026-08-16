@@ -1,4 +1,4 @@
-# FlowTrack — Development Compose override
+# FlowTrack - Development Compose override
 # ─────────────────────────────────────────────────────────────────────────────
 # Extends docker-compose.yml with hot-reload mounts and dev-friendly settings.
 #

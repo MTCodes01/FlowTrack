@@ -1,4 +1,4 @@
-// Go workspace — manages all Go modules in the monorepo
+// Go workspace - manages all Go modules in the monorepo
 go 1.22
 
 use (

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # ─────────────────────────────────────────────────────────────────────────────
-# FlowTrack — Checksum Generator
+# FlowTrack - Checksum Generator
 # ─────────────────────────────────────────────────────────────────────────────
 # Usage:
 #   ./scripts/generate-checksums.sh <release-dir>
@@ -19,7 +19,7 @@ fi
 
 OUTPUT="$RELEASE_DIR/checksums.txt"
 
-echo "# FlowTrack release checksums — SHA-256" > "$OUTPUT"
+echo "# FlowTrack release checksums - SHA-256" > "$OUTPUT"
 echo "# Generated: $(date -u '+%Y-%m-%dT%H:%M:%SZ')" >> "$OUTPUT"
 echo "" >> "$OUTPUT"
 

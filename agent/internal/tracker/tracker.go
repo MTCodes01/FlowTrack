@@ -71,12 +71,12 @@ func (t *Tracker) Sample() error {
 		return nil
 	}
 
-	// Window changed — commit the previous session
+	// Window changed - commit the previous session
 	if appName != t.current.AppName {
 		t.Commit()
 		t.current = &activeWindow{AppName: appName, Title: title, StartTime: now}
 	} else {
-		// Same app — just update the window title
+		// Same app - just update the window title
 		t.current.Title = title
 	}
 

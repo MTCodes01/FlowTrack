@@ -1,8 +1,16 @@
-# FlowTrack
+<p align="center">
+  <img src="app-icon.png" width="96" height="96" alt="FlowTrack Logo" />
+</p>
 
-> **A native, lightweight application time tracker with leaderboards and self-hosted server support.**
+<h1 align="center">FlowTrack</h1>
 
-FlowTrack runs silently in your system tray, tracking which applications you use and for how long. Optionally sync to a self-hosted server to view detailed statistics and compete on leaderboards with friends or teammates.
+<p align="center">
+  <strong>A native, lightweight application time tracker with leaderboards and self-hosted server support.</strong>
+</p>
+
+<p align="center">
+  FlowTrack runs silently in your system tray, tracking which applications you use and for how long. Optionally sync to a self-hosted server to view detailed statistics and compete on leaderboards with friends or teammates.
+</p>
 
 ---
 
@@ -64,21 +72,21 @@ docker pull ghcr.io/MTCodes01/flowtrack-web:latest
 
 ## Features
 
-- 🎯 **Automatic tracking** — detects the active application every 5 seconds
-- 💾 **Local-first** — all data stored locally in SQLite, works without a server
-- 🔄 **Optional sync** — push data to your self-hosted server
-- 📊 **Dashboard** — daily and weekly usage charts
-- 🏆 **Leaderboards** — compete with team members on tracked time
-- 🔒 **Privacy** — you control the server; no data sent to third parties
-- 🪶 **Lightweight** — the agent uses < 10 MB RAM
-- 🖥️ **Cross-platform** — Windows, macOS, Linux
+- 🎯 **Automatic tracking** - detects the active application every 5 seconds
+- 💾 **Local-first** - all data stored locally in SQLite, works without a server
+- 🔄 **Optional sync** - push data to your self-hosted server
+- 📊 **Dashboard** - daily and weekly usage charts
+- 🏆 **Leaderboards** - compete with team members on tracked time
+- 🔒 **Privacy** - you control the server; no data sent to third parties
+- 🪶 **Lightweight** - the agent uses < 10 MB RAM
+- 🖥️ **Cross-platform** - Windows, macOS, Linux
 
 ---
 
 ## Quick Start (Desktop)
 
 1. Download the installer for your platform above
-2. Install and run — FlowTrack appears in the system tray
+2. Install and run - FlowTrack appears in the system tray
 3. *(Optional)* Configure a server URL in Settings to enable sync and leaderboards
 
 ---
@@ -142,4 +150,4 @@ This tags the commit and triggers the GitHub Actions release pipeline which:
 
 ## License
 
-[MIT](LICENSE) — © 2026 FlowTrack Contributors
+[MIT](LICENSE) - © 2026 FlowTrack Contributors
