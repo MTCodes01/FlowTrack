@@ -39,7 +39,7 @@ export default function Layout({ children, onLogout }: LayoutProps) {
       {/* Mobile Header */}
       <div className="mobile-header">
         <div className="sidebar-logo" style={{ padding: 0, margin: 0, fontSize: '1.25rem' }}>
-          <img src="./app-icon.png" alt="FlowTrack Logo" width="24" height="24" />
+          <img src="/app-icon.png" alt="FlowTrack Logo" width="24" height="24" />
           <span style={{ color: 'var(--color-text)', fontFamily: 'Montserrat, sans-serif', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '-0.5px' }}>FlowTrack</span>
         </div>
         <button className="mobile-menu-btn" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
@@ -66,7 +66,7 @@ export default function Layout({ children, onLogout }: LayoutProps) {
           }}
           title={isSidebarCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}
         >
-          <img src="./app-icon.png" alt="FlowTrack Logo" width="24" height="24" style={{ minWidth: 24 }} />
+          <img src="/app-icon.png" alt="FlowTrack Logo" width="24" height="24" style={{ minWidth: 24 }} />
           <span className="sidebar-logo-text" style={{ color: 'var(--color-text)', fontFamily: 'Montserrat, sans-serif', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '-0.5px' }}>FlowTrack</span>
         </div>
 
