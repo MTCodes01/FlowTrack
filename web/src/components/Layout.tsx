@@ -13,6 +13,19 @@ export default function Layout({ children, onLogout }: LayoutProps) {
     return localStorage.getItem('sidebar-collapsed') === 'true'
   })
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const [version, setVersion] = useState('1.0.0')
+
+  useEffect(() => {
+    // @ts-ignore
+    if (window.__TAURI_INTERNALS__) {
+      const tauriMod = '@tauri-apps/api/core'
+      import(/* @vite-ignore */ tauriMod).then((module: any) => {
+        module.invoke('app_version').then((v: string) => setVersion(v)).catch(console.error)
+      }).catch(console.error)
+    } else {
+      setVersion(import.meta.env.VITE_APP_VERSION || '1.0.0')
+    }
+  }, [])
 
   useEffect(() => {
     localStorage.setItem('sidebar-collapsed', isSidebarCollapsed.toString())
@@ -39,7 +52,7 @@ export default function Layout({ children, onLogout }: LayoutProps) {
       {/* Mobile Header */}
       <div className="mobile-header">
         <div className="sidebar-logo" style={{ padding: 0, margin: 0, fontSize: '1.25rem' }}>
-          <img src="/app-icon.png" alt="FlowTrack Logo" width="24" height="24" />
+          <img src="./app-icon.png" alt="FlowTrack Logo" width="24" height="24" />
           <span style={{ color: 'var(--color-text)', fontFamily: 'Montserrat, sans-serif', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '-0.5px' }}>FlowTrack</span>
         </div>
         <button className="mobile-menu-btn" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
@@ -66,7 +79,7 @@ export default function Layout({ children, onLogout }: LayoutProps) {
           }}
           title={isSidebarCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}
         >
-          <img src="/app-icon.png" alt="FlowTrack Logo" width="24" height="24" style={{ minWidth: 24 }} />
+          <img src="./app-icon.png" alt="FlowTrack Logo" width="24" height="24" style={{ minWidth: 24 }} />
           <span className="sidebar-logo-text" style={{ color: 'var(--color-text)', fontFamily: 'Montserrat, sans-serif', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '-0.5px' }}>FlowTrack</span>
         </div>
 
@@ -97,7 +110,23 @@ export default function Layout({ children, onLogout }: LayoutProps) {
         </div>
       </nav>
 
-      <main className="main-content">{children}</main>
+      <main className="main-content" style={{ display: 'flex', flexDirection: 'column' }}>
+        <div style={{ minHeight: '100vh' }}>
+          {children}
+        </div>
+        
+        <div style={{ 
+          marginTop: '2rem',
+          paddingTop: '1rem',
+          paddingBottom: '1rem',
+          borderTop: '1px solid var(--color-border)',
+          fontSize: '0.75rem', 
+          color: 'var(--color-muted)', 
+          textAlign: 'center'
+        }}>
+          made with ❤️ by <a href="https://github.com/MTCodes01" target="_blank" rel="noreferrer" style={{ color: 'var(--color-accent)', textDecoration: 'none' }}>MT</a> | v{version}
+        </div>
+      </main>
     </div>
   )
 }

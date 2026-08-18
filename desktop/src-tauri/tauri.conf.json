@@ -58,7 +58,8 @@
     "windows": {
       "wix": {},
       "nsis": {
-        "installMode": "perMachine"
+        "installMode": "perMachine",
+        "installer_hooks": "installer-hooks.nsh"
       }
     }
   }

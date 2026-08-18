@@ -64,8 +64,8 @@ export default function Dashboard({ token }: Props) {
   }, [token])
 
   // Date filter state
-  const [selectedPreset, setSelectedPreset] = useState<DateFilterPreset>(PRESETS[3])
-  const [activeRange, setActiveRange] = useState<DateRange>(() => PRESETS[3].getRange(nowIST()))
+  const [selectedPreset, setSelectedPreset] = useState<DateFilterPreset>(PRESETS[0])
+  const [activeRange, setActiveRange] = useState<DateRange>(() => PRESETS[0].getRange(nowIST()))
   const [isDateFilterOpen, setIsDateFilterOpen] = useState(false)
   const [customStart, setCustomStart] = useState('')
   const [customEnd, setCustomEnd] = useState('')

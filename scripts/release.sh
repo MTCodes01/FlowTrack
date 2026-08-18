@@ -44,6 +44,21 @@ if [ "$BRANCH" != "main" ]; then
   [ "$confirm" = "y" ] || exit 1
 fi
 
+echo "Bumping versions to $VERSION..."
+# Update package.json versions
+(cd web && npm version "$VERSION" --no-git-tag-version)
+(cd desktop && npm version "$VERSION" --no-git-tag-version)
+
+# Update tauri.conf.json version
+jq ".version = \"$VERSION\"" desktop/src-tauri/tauri.conf.json > tmp.json && mv tmp.json desktop/src-tauri/tauri.conf.json
+
+# Update Cargo.toml version
+sed -i "s/^version = \".*\"/version = \"$VERSION\"/" desktop/src-tauri/Cargo.toml
+
+echo "Committing version bump..."
+git add web/package.json web/package-lock.json desktop/package.json desktop/package-lock.json desktop/src-tauri/tauri.conf.json desktop/src-tauri/Cargo.toml
+git commit -m "chore: bump version to $VERSION"
+
 echo "Creating release tag $TAG…"
 git tag -s "$TAG" -m "Release $TAG" 2>/dev/null || git tag "$TAG" -m "Release $TAG"
 git push origin "$TAG"

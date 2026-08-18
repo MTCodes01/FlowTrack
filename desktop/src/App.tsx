@@ -1,6 +1,7 @@
 import { HashRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { useState, useEffect } from 'react'
 import { invoke } from '@tauri-apps/api/core'
+import { enable, isEnabled } from '@tauri-apps/plugin-autostart'
 import Dashboard from '../../web/src/pages/Dashboard'
 import Leaderboard from '../../web/src/pages/Leaderboard'
 import Settings from '../../web/src/pages/Settings'
@@ -29,6 +30,19 @@ function App() {
     }
   }, [token])
 
+  useEffect(() => {
+    const initAutostart = async () => {
+      try {
+        if (!(await isEnabled())) {
+          await enable();
+        }
+      } catch (err) {
+        console.error('Failed to enable autostart:', err);
+      }
+    };
+    initAutostart();
+  }, []);
+
   const logout = () => {
     localStorage.removeItem('ft_token')
     setToken(null)
@@ -43,7 +57,7 @@ function App() {
           </div>
         )}
         <Routes>
-          <Route path="/login" element={!token ? <Login onLogin={setToken} /> : <Navigate to="/dashboard" replace />} />
+          <Route path="/login" element={!token ? <Login onLogin={(t) => { localStorage.setItem('ft_token', t); setToken(t); }} /> : <Navigate to="/dashboard" replace />} />
           <Route path="/dashboard" element={token ? <Layout onLogout={logout}><Dashboard token={token!} /></Layout> : <Navigate to="/login" replace />} />
           <Route path="/leaderboard" element={token ? <Layout onLogout={logout}><Leaderboard token={token!} /></Layout> : <Navigate to="/login" replace />} />
           <Route path="/settings" element={token ? <Layout onLogout={logout}><Settings token={token!} onLogout={logout} /></Layout> : <Navigate to="/login" replace />} />
