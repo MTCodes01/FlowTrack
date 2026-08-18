@@ -16,7 +16,7 @@ export default function Layout({ children, onLogout }: LayoutProps) {
   const [version, setVersion] = useState('1.0.0')
 
   useEffect(() => {
-    // @ts-ignore
+    // @ts-expect-error
     if (window.__TAURI_INTERNALS__) {
       const tauriMod = '@tauri-apps/api/core'
       import(/* @vite-ignore */ tauriMod).then((module: any) => {

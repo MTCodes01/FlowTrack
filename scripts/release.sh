@@ -49,8 +49,8 @@ echo "Bumping versions to $VERSION..."
 (cd web && npm version "$VERSION" --no-git-tag-version)
 (cd desktop && npm version "$VERSION" --no-git-tag-version)
 
-# Update tauri.conf.json version
-jq ".version = \"$VERSION\"" desktop/src-tauri/tauri.conf.json > tmp.json && mv tmp.json desktop/src-tauri/tauri.conf.json
+# Update tauri.conf.json version (using node instead of jq to avoid missing command errors on Windows)
+node -e "const fs=require('fs'); const file='desktop/src-tauri/tauri.conf.json'; const pkg=JSON.parse(fs.readFileSync(file)); pkg.version='$VERSION'; fs.writeFileSync(file, JSON.stringify(pkg, null, 2) + '\n');"
 
 # Update Cargo.toml version
 sed -i "s/^version = \".*\"/version = \"$VERSION\"/" desktop/src-tauri/Cargo.toml
